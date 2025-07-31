@@ -15,10 +15,8 @@ module.exports = {
         try {
             if (req.body.default === true) {
                 await Address.updateMany({ userId: req.user.id }, { default: false })
-
                 await newAddress.save();
                 res.status(201).json({ status: true, message: "Address successfully added" });
-
             }
 
         } catch (error) {

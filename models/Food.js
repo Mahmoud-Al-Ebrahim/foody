@@ -8,7 +8,7 @@ const FoodSchema = new mongoose.Schema({
     foodType: { type: Array, required: true },
     code: { type: String, required: true },
     isAvailable: { type: Boolean, required: true },
-    restaurant: { type: mongoose.Schema.Types.ObjectId, required: true },
+    restaurant: { type: mongoose.Schema.Types.ObjectId, required: true ,ref: 'Restaurant'},
     rating: { type: Number, min: 1, max: 5, default: 3 },
     ratingCount: { type: String, default: "267" },
     description: { type: String, required: true },

@@ -17,30 +17,40 @@ module.exports = {
     },
 
     getUserOrders: async (req, res) => {
-        const userId = req.user.id;
+        const userId = req.user.id; // assumes you are using a verified token middleware
         const { paymentStatus, orderStatus } = req.query;
-        let query = { userId };
+    
+        const query = { userId };
+    
         if (paymentStatus) {
             query.paymentStatus = paymentStatus;
         }
-        if (orderStatus === orderStatus) {
+    
+        if (orderStatus) {
             query.orderStatus = orderStatus;
         }
-
+    
         try {
-
             const orders = await Order.find(query)
+                .sort({ createdAt: -1 })
                 .populate({
                     path: 'orderItems.foodId',
-                    select: "imageUrl title rating time"
+                    select: 'title imageUrl rating time'
                 })
-
-            res.status(200).json(orders)
+                .populate({
+                    path: 'deliveryAddress',
+                    select: 'addressLine1 coords city street'
+                });
+    
+            res.status(200).json({ success: true, orders });
         } catch (error) {
-            res.status(500).json({ status: false, message: error.message });
+            res.status(500).json({
+                success: false,
+                message: 'Failed to retrieve orders',
+                error: error.message
+            });
         }
     },
-
     getRestaurantOrder: async (req, res) => {
         const id = req.params.id;
         const status = req.params.status;

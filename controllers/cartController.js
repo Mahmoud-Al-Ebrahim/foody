@@ -3,7 +3,7 @@ const Cart = require('../models/Cart');
 module.exports = {
     addProductToCart: async (req, res) => {
         const userId = req.user.id;
-        const { productId, totalPrice, quantity, additives } = req.body;
+        const { productId, totalPrice, quantity, additives , restaurantAddress , restaurantName , restaurantCoords} = req.body;
 
         let count;
 
@@ -23,7 +23,10 @@ module.exports = {
                     productId: productId,
                     totalPrice: totalPrice,
                     quantity: quantity,
-                    additives: additives
+                    additives: additives,
+                    restaurantAddress: restaurantAddress,
+                    restaurantName: restaurantName,
+                    restaurantCoords: restaurantCoords
                 })
 
                 await newCartItem.save();
@@ -53,10 +56,10 @@ module.exports = {
             const cart = await Cart.find({ userId: userId })
                 .populate({
                     path: 'productId',
-                    select: 'imageUrl title restaurant rating ratingCount',
+                    select: 'imageUrl time price title restaurant rating ratingCount',
                     populate: {
                         path: 'restaurant',
-                        select: 'time ccords'
+                        select: 'title time imageUrl foods pickup delivery isAvailable owner code logoUrl rating ratingCount verification verificationMessage earnings coords'
                     }
                 })
             res.status(200).json(cart)
