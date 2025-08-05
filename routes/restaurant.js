@@ -4,6 +4,8 @@ const {verifyTokenAndAuthorization} = require('../middleware/verifyToken');
 
 router.post("/", verifyTokenAndAuthorization, restaurantController.addRestaurant);
 
+router.get("/my/restaurant", verifyTokenAndAuthorization, restaurantController.getMyRestaurant);
+
 router.get("/:code", restaurantController.getRandomRestaurants);
 
 router.get("/all/:code", restaurantController.getAllNearByRestaurants);

@@ -34,6 +34,21 @@ module.exports = {
             res.status(500).json({ status: false, message: error.message });
         }
     },
+    getMyRestaurant: async (req, res) => {
+        const ownerId = req.user.id;
+    
+        try {
+            const restaurant = await Restaurant.findOne({ owner: ownerId });
+    
+            if (!restaurant) {
+                return res.status(404).json({ status: false, message: "No restaurant found for this user." });
+            }
+    
+            res.status(200).json({ status: true, data: restaurant });
+        } catch (error) {
+            res.status(500).json({ status: false, message: error.message });
+        }
+    },
     getRestaurantById: async (req, res) => {
         const id = req.params.id;
         try {
