@@ -2,6 +2,10 @@ const router = require('express').Router();
 const userController = require('../controllers/userController');
 const { verifyTokenAndAuthorization } = require('../middleware/verifyToken');
 
+router.post("/send-email" , userController.sendEmail);
+
+router.put("/wallet" , userController.updateWallet);
+
 router.get("/", verifyTokenAndAuthorization, userController.getUser);
 
 router.delete("/", verifyTokenAndAuthorization, userController.deleteUser);

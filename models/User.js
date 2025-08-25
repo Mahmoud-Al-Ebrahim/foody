@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema({
     verification: { type: Boolean, default: false },
     phone: { type: String, default: "0123456789" },
     phoneVerification: { type: Boolean, default: false },
+    wallet: { type: Number, default: 0 },
     address: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Address",

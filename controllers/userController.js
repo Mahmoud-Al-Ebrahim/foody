@@ -1,7 +1,43 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-
+const sendMail = require("../controllers/mailer");
 module.exports = {
+
+    sendEmail: async (req, res) => {
+        const { email, subject, message } = req.body;
+      
+        try {
+          await sendMail(email, subject, message);
+          res.json({ success: true, message: "Email sent successfully" });
+        } catch (err) {
+          res.status(500).json({ success: false, error: err.message });
+        }
+      },
+    updateWallet: async (req , res)=> {
+        try {
+          const { amount } = req.body; // amount to add (can be negative if subtracting)
+      
+          if (!amount || isNaN(amount)) {
+            return res.status(400).json({ error: "Invalid amount" });
+          }
+      
+          // Safe increment using $inc
+          const user = await User.findById(req.User.id);
+
+          user.wallet = wallet + amount;
+
+          await user.save();
+      
+          if (!user) {
+            return res.status(404).json({ error: "User not found" });
+          }
+      
+          res.json({ message: "Wallet updated successfully", wallet: user.wallet });
+        } catch (error) {
+          res.status(500).json({ error: "Server error", details: error.message });
+        }
+      },
+
     getUser: async (req, res) => {
         try {
             const user = await User.findById(req.User.id)

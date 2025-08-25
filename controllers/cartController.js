@@ -104,5 +104,26 @@ module.exports = {
         } catch (error) {
             res.status(500).json({ status: false, message: error.message });
         }
+    },
+    incrementProductQty: async (req, res) => {
+        // const userId = req.user.id;
+        const id = req.params.id;
+
+        try {
+            const cartItem = await Cart.findById(id);
+
+            if (cartItem) {
+                const productPrice = cartItem.totalPrice / cartItem.quantity;
+
+                    cartItem.quantity += 1;
+                    cartItem.totalPrice += productPrice;
+                    await cartItem.save();
+                    res.status(200).json({ status: true, message: "Product quantity successfully incremented" });
+            } else {
+                res.status(400).json({ status: false, message: "Cart item not found" });
+            }
+        } catch (error) {
+            res.status(500).json({ status: false, message: error.message });
+        }
     }
 };

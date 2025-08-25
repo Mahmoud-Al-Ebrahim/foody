@@ -9,11 +9,57 @@ module.exports = {
         }
 
         try {
+
+            const existingFood = await Food.findOne({ title: title.trim(), restaurant });
+        if (existingFood) {
+            return res.status(400).json({ 
+                status: false, 
+                message: "This food item already exists in the restaurant" 
+            });
+        }
+
             const newFood = new Food(req.body);
 
             await newFood.save();
 
             res.status(201).json({ status: true, message: "Food has been succesfully added" });
+        } catch (error) {
+            res.status(500).json({ status: false, message: error.message });
+        }
+    },
+    editFood: async (req, res) => {
+        const { id } = req.params; // food id
+        const { title, foodTags, category, code, restaurant, description, time, price, additives, imageUrl } = req.body;
+    
+        if (!title || !foodTags || !category || !code || !restaurant || !description || !time || !price || !additives || !imageUrl) {
+            return res.status(400).json({ status: false, message: "You have a missing field" });
+        }
+    
+        try {
+            const existingFood = await Food.findOne({
+                title: title.trim(),
+                restaurant,
+                _id: { $ne: id } // exclude the current food being edited
+            });
+    
+            if (existingFood) {
+                return res.status(400).json({
+                    status: false,
+                    message: "Another food item with this title already exists in the restaurant"
+                });
+            }
+    
+            const updatedFood = await Food.findByIdAndUpdate(
+                id,
+                { title, foodTags, category, code, restaurant, description, time, price, additives, imageUrl },
+                { new: true } // return updated document
+            );
+    
+            if (!updatedFood) {
+                return res.status(404).json({ status: false, message: "Food item not found" });
+            }
+    
+            res.status(201).json({ status: true, message: "Food has been successfully updated", food: updatedFood });
         } catch (error) {
             res.status(500).json({ status: false, message: error.message });
         }
