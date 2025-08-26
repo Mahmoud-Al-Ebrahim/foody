@@ -22,7 +22,7 @@ module.exports = {
           }
       
           // Safe increment using $inc
-          const user = await User.findById(req.User.id);
+          const user = await User.findById(req.user.id);
 
           user.wallet = wallet + amount;
 
@@ -40,7 +40,7 @@ module.exports = {
 
     getUser: async (req, res) => {
         try {
-            const user = await User.findById(req.User.id)
+            const user = await User.findById(req.user.id)
 
             const { password, __v, createdAt, ...userData } = user._doc;
 
