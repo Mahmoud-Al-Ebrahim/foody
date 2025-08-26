@@ -4,7 +4,7 @@ const { verifyTokenAndAuthorization } = require('../middleware/verifyToken');
 
 router.post("/send-email" , userController.sendEmail);
 
-router.put("/wallet" , userController.updateWallet);
+router.put("/wallet" , verifyTokenAndAuthorization , userController.updateWallet);
 
 router.get("/", verifyTokenAndAuthorization, userController.getUser);
 
