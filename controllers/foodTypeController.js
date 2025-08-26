@@ -2,6 +2,7 @@ const FoodType = require('../models/foodType');
 
 module.exports = {
     createFoodType: async (req, res) => {
+        console.log(req.body);
         const newFoodType = new FoodType(req.body);
         try {
             await newFoodType.save();
