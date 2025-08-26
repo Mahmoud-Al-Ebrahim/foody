@@ -18,7 +18,7 @@ module.exports = {
           const { amount } = req.body; // amount to add (can be negative if subtracting)
       
           if (!amount || isNaN(amount)) {
-            return res.status(400).json({ error: "Invalid amount" });
+            return res.status(400).json({ message: "Invalid amount" });
           }
       
           // Safe increment using $inc
@@ -29,12 +29,12 @@ module.exports = {
           await user.save();
       
           if (!user) {
-            return res.status(404).json({ error: "User not found" });
+            return res.status(404).json({ message: "User not found" });
           }
       
           res.json({ message: "Wallet updated successfully", wallet: user.wallet });
         } catch (error) {
-          res.status(500).json({ error: "Server error", details: error.message });
+          res.status(500).json({ error: "Server error", message: error.message });
         }
       },
 
