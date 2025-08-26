@@ -8,7 +8,7 @@ module.exports = {
             res.status(201).json({ status: true, message: "Food Type created successfully" });
         }
         catch (error) {
-            res.status(500).json({ status: false, message: req.body });
+            res.status(500).json({ status: false, message: error.message });
         }
     },
 
