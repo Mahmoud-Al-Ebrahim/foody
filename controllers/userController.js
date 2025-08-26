@@ -24,7 +24,7 @@ module.exports = {
           // Safe increment using $inc
           const user = await User.findById(req.user.id);
 
-          user.wallet = wallet + amount;
+          user.wallet = user.wallet + amount;
 
           await user.save();
       
