@@ -94,7 +94,7 @@ module.exports = {
                 notification: { title, body },
                 tokens
             };
-            const response = await admin.messaging().sendMulticast(message);
+            const response = await admin.messaging().sendEachForMulticast(message);
     
             res.status(200).json({
                 success: true,
