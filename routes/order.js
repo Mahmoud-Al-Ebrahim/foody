@@ -12,7 +12,7 @@ router.get("/myOrders", verifyTokenAndAuthorization, orderController.getUserOrde
 
 router.get("/:id", verifyTokenAndAuthorization, orderController.getOrderDetails);
 
-router.post("/driver-orders", verifyTokenAndAuthorization, orderController.getRestaurantOrder);
+router.post("/driver-orders", verifyTokenAndAuthorization, orderController.getDriverOrders);
 
 router.post("/rest-orders/:id", verifyTokenAndAuthorization, orderController.getRestaurantOrder);
 
