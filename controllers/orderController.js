@@ -18,13 +18,13 @@ module.exports = {
     },
     assignOrderToDriver : async (req, res) => {
         const { orderId } = req.params;
-        const { driverId } = req.user.id;
+        const driverId = req.user.id;
     
         try {
             // Check driver exists
             const driver = await User.findOne({ _id: driverId, userType: 'Driver' });
             if (!driver) {
-                return res.status(404).json({ success: false, message: req.user.id });
+                return res.status(404).json({ success: false, message: 'Driver not found' });
             }
     
             // Find the order first
