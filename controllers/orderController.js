@@ -209,10 +209,6 @@ module.exports = {
                     select: 'phone profile'
                 })
                 .populate({
-                    path: "restaurantId",
-                    select: "title coords imageUrl logoUrl time"
-                })
-                .populate({
                     path: 'orderItems.foodId',
                     select: "title imageUrl time"
                 })
