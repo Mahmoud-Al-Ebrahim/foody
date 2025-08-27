@@ -1,5 +1,5 @@
 const Order = require("../models/Order");
-
+const admin = require('firebase-admin'); // Firebase Admin SDK
 module.exports = {
     placeOrder: async (req, res) => {
         const newOrder = new Order({
@@ -13,6 +13,101 @@ module.exports = {
             res.status(200).json({ status: true, message: "Order placed successfully", });
         } catch (error) {
             res.status(500).json({ status: true, message: error.message })
+        }
+    },
+    assignOrderToDriver : async (req, res) => {
+        const { orderId } = req.params;
+        const { driverId } = req.user.id;
+    
+        try {
+            // Check driver exists
+            const driver = await User.findOne({ _id: driverId, userType: 'Driver' });
+            if (!driver) {
+                return res.status(404).json({ success: false, message: 'Driver not found' });
+            }
+    
+            // Find the order first
+            const order = await Order.findById(orderId);
+            if (!order) {
+                return res.status(404).json({ success: false, message: 'Order not found' });
+            }
+    
+            // Reject if already assigned to a different driver
+            if (order.driverId && order.driverId.toString() !== driverId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Order is already assigned to another driver'
+                });
+            }
+    
+            // If not assigned yet, assign driver
+            order.driverId = driverId;
+            order.orderStatus = 'Assigned';
+            await order.save();
+    
+            const populatedOrder = await Order.findById(order._id)
+                .populate('driverId', 'name phoneNumber');
+    
+            res.status(200).json({
+                success: true,
+                message: 'Order assigned successfully',
+                order: populatedOrder
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to assign order',
+                error: error.message
+            });
+        }
+    },
+
+    notifyAllDrivers : async (req, res) => {
+        try {
+            // Get all drivers with a token
+            const drivers = await User.find({ userType: 'Driver', fcm: { $exists: true, $ne: null } });
+    
+            if (!drivers.length) {
+                return res.status(404).json({ success: false, message: 'No drivers found with tokens' });
+            }
+    
+            const title = 'New Order Available';
+            const body = 'A new order is waiting for assignment.';
+    
+            // Save notification for each driver
+            const notifications = await Promise.all(
+                drivers.map(d => {
+                    const notif = new Notification({
+                        userId: d._id,
+                        title,
+                        body,
+                        data: { type: 'NEW_ORDER' }
+                    });
+                    return notif.save();
+                })
+            );
+    
+            // Collect tokens
+            const tokens = drivers.map(d => d.fcm);
+    
+            // Send to all drivers via FCM
+            const message = {
+                notification: { title, body },
+                tokens
+            };
+            const response = await admin.messaging().sendMulticast(message);
+    
+            res.status(200).json({
+                success: true,
+                message: `Notification sent to ${response.successCount} drivers, failed: ${response.failureCount}`,
+                saved: notifications.length
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to notify drivers',
+                error: error.message
+            });
         }
     },
 
@@ -53,7 +148,7 @@ module.exports = {
     },
     getRestaurantOrder: async (req, res) => {
         const id = req.params.id;
-        const status = req.params.status;
+        const status = req.query.status;
 
         // if (req.query.status == 'Placed') {
         //     status = 'Placed';
@@ -74,7 +169,7 @@ module.exports = {
 
         try {
 
-            const orders = await Order.find({ orderStatus: status, paymentStatus: 'Completed', restaurantId: id })
+            const orders = await Order.find({ orderStatus: status , paymentStatus: 'Completed', restaurantId: id })
                 .select('userId deliveryAddress orderItems deliveryFee restaurantId restaurantCoords recipientCoords orderStatus')
                 .populate({
                     path: 'userId',
@@ -95,7 +190,43 @@ module.exports = {
             res.status(500).json({ status: false, message: error.message });
         }
     },
-
+    getDriverOrders: async (req, res) => {
+        const id = req.user.id;
+        const status = req.query.status;
+        
+        try {
+            let query = { orderStatus: status, paymentStatus: 'Completed' };
+        
+            // If not Ready, filter by driverId too
+            if (status !== 'Ready') {
+                query.driverId = id;
+            }
+        
+            const orders = await Order.find(query)
+                .select('userId deliveryAddress orderItems deliveryFee restaurantId restaurantCoords recipientCoords orderStatus')
+                .populate({
+                    path: 'userId',
+                    select: 'phone profile'
+                })
+                .populate({
+                    path: "restaurantId",
+                    select: "title coords imageUrl logoUrl time"
+                })
+                .populate({
+                    path: 'orderItems.foodId',
+                    select: "title imageUrl time"
+                })
+                .populate({
+                    path: 'deliveryAddress',
+                    select: "addressLine1"
+                });
+        
+            res.status(200).json(orders);
+        } catch (error) {
+            res.status(500).json({ status: false, message: error.message });
+        }
+        
+    },
     updateOrderStatus: async (req, res) => {
         const orderId = req.params.id;
         const orderStatus = req.query.status;

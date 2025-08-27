@@ -28,7 +28,7 @@ const OrderSchema = new mongoose.Schema({
     // },
     paymentMethod: { type: String, required: true },
     paymentStatus: { type: String, default: 'Pending', enum: ['Pending', 'Completed', 'Failed'] },
-    orderStatus: { type: String, default: 'Pending', enum: ['Placed', 'Preparing', 'Manual', 'Delivered', 'Cancelled', 'Ready', 'Out_for_Delivery'] },
+    orderStatus: { type: String, default: 'Placed', enum: ['Placed', 'Preparing', 'Manual', 'Approved', 'Delivered', 'Cancelled', 'Ready', 'Out_for_Delivery'] },
     // restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant' },
     // restaurantCoords: [Number],
     // recipientCoords: [Number],
