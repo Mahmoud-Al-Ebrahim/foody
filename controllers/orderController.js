@@ -203,7 +203,7 @@ module.exports = {
             }
         
             const orders = await Order.find(query)
-                .select('userId deliveryAddress orderItems deliveryFee restaurantId restaurantCoords recipientCoords orderStatus')
+                .select('userId deliveryAddress orderItems deliveryFee restaurantCoords recipientCoords orderStatus')
                 .populate({
                     path: 'userId',
                     select: 'phone profile'
