@@ -14,7 +14,7 @@ const AddressRoute = require('./routes/address');
 const CartRoute = require('./routes/cart');
 const OrderRoute = require('./routes/order');
 const FoodTypesRoute = require('./routes/foodType');
-const notificationRoute = require('./routes/notification');
+const NotificationRoute = require('./routes/notification');
 const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json');
 
@@ -39,7 +39,7 @@ app.use("/api/rating", RatingRoute);
 app.use("/api/address", AddressRoute);
 app.use("/api/cart", CartRoute);
 app.use("/api/orders", OrderRoute);
-app.use("/api/notifications", notificationRoute);
+app.use("/api/notifications", NotificationRoute);
 app.use("/api/foodTypes", FoodTypesRoute);
 
 admin.initializeApp({
