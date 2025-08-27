@@ -174,7 +174,7 @@ module.exports = {
                     select: 'phone profile'
                 }).populate({
                     path: 'orderItems.foodId',
-                    select: "title imageUrl time"
+                    select: "title imageUrl time rating"
                 }).populate({
                     path: 'deliveryAddress',
                     select: "addressLine1"
