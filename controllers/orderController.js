@@ -2,20 +2,55 @@ const Order = require("../models/Order");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
 const admin = require('firebase-admin'); // Firebase Admin SDK
+const Restaurant = require("../models/Restaurant");
 module.exports = {
     placeOrder: async (req, res) => {
         const newOrder = new Order({
             ...req.body,
-            userId: req.user.id
-        });
-        try {
+            userId: req.user.id,
+          });
+        
+          try {
             await newOrder.save();
-
-            const orderId = newOrder._id
-            res.status(200).json({ status: true, message: "Order placed successfully", });
-        } catch (error) {
-            res.status(500).json({ status: true, message: error.message })
-        }
+        
+            // ✅ Respond immediately (notification won’t block this)
+            res.status(200).json({
+              status: true,
+              message: "Order placed successfully",
+            });
+        
+            // ✅ Fire-and-forget notification
+            const restaurant = await Restaurant.findById(newOrder.restaurantId);
+        
+            if (restaurant && restaurant.fcmToken) {
+              const message = {
+                token: restaurant.fcmToken,
+                notification: {
+                  title: "New Order Received",
+                  body: `You have a new order from ${req.user.name || "a customer"}`,
+                },
+                data: {
+                  orderId: newOrder._id.toString(),
+                  restaurantId: newOrder.restaurantId.toString(),
+                },
+              };
+        
+              admin
+                .messaging()
+                .send(message)
+                .then(() => console.log("✅ Notification sent to restaurant"))
+                .catch((err) =>
+                  console.error("❌ Failed to send notification:", err.message)
+                );
+            } else {
+              console.warn("⚠️ Restaurant has no fcmToken, notification skipped.");
+            }
+          } catch (error) {
+            res.status(500).json({
+              status: false,
+              message: error.message,
+            });
+          }
     },
     assignOrderToDriver : async (req, res) => {
         const { orderId } = req.params;
@@ -224,18 +259,53 @@ module.exports = {
         const orderStatus = req.query.status;
 
         try {
-
-            const updatedOrder = await Order.findByIdAndUpdate(orderId, { orderStatus: orderStatus }, { new: true });
-
-            if (updatedOrder) {
-                res.status(200).json({ status: true, message: "Order updated successfully" });
-            } else {
-                res.status(400).json({ status: false, message: "Order not found" });
+            const updatedOrder = await Order.findByIdAndUpdate(
+              orderId,
+              { orderStatus: orderStatus },
+              { new: true }
+            ).populate("userId"); // assuming Order has userId ref to User
+        
+            if (!updatedOrder) {
+              return res.status(400).json({ status: false, message: "Order not found" });
             }
+        
+            // ✅ Respond immediately
+            res
+              .status(200)
+              .json({ status: true, message: "Order updated successfully" });
+        
+              const user = updatedOrder.userId; // user who created the order
+        
+              if (user && user.fcm) {
+                const message = {
+                  token: user.fcm,
+                  notification: {
+                    title: "Order Updated",
+                    body: `Your order has been marked as ${orderStatus}`,
+                  },
+                  data: {
+                    orderId: orderId.toString(),
+                    status: orderStatus,
+                  },
+                };
+        
+                admin
+                  .messaging()
+                  .send(message)
+                  .then(() => console.log("✅ Notification sent successfully"))
+                  .catch((err) =>
+                    console.error("❌ Failed to send notification:", err.message)
+                  );
+              } else {
+                console.warn("⚠️ User has no fcmToken, notification skipped.");
+              }
 
-        } catch (error) {
-            res.status(500).json({ status: false, message: error.message });
-        }
+          } catch (error) {
+            console.error(error);
+            return res
+              .status(500)
+              .json({ status: false, message: error.message });
+          }
     },
 
     getOrderDetails: async (req, res) => {
