@@ -42,16 +42,13 @@ module.exports = {
     
             // If not assigned yet, assign driver
             order.driverId = driverId;
-            order.orderStatus = 'Assigned';
+            order.orderStatus = 'Approved';
             await order.save();
     
-            const populatedOrder = await Order.findById(order._id)
-                .populate('driverId', 'name phoneNumber');
     
             res.status(200).json({
                 success: true,
                 message: 'Order assigned successfully',
-                order: populatedOrder
             });
         } catch (error) {
             res.status(500).json({
