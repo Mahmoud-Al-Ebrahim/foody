@@ -24,7 +24,7 @@ module.exports = {
             // Check driver exists
             const driver = await User.findOne({ _id: driverId, userType: 'Driver' });
             if (!driver) {
-                return res.status(404).json({ success: false, message: 'Driver not found' });
+                return res.status(404).json({ success: false, message: req.user.id });
             }
     
             // Find the order first
