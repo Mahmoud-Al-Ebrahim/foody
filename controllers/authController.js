@@ -40,7 +40,11 @@ module.exports = {
             await newUser.save();
 
             //SEND OTP TO EMAIL
-            sendMail(newUser.email, otp);
+            sendMail(newUser.email, otp , "Foodly Verification Code" , `<h1>Foodly Email verification</h1>
+            <p>Your verification code is:</p>
+            <h2 style="color: blue">${message}</h2>
+            <p>Please enter this code on the verification page to complete your registration process.</p>
+            <p>If you did not request this, please ignore this email.</p>`);
 
             res.status(201).json({ status: true, message: "User successfully created." });
         } catch (error) {

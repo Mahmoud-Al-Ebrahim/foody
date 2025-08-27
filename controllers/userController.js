@@ -1,17 +1,15 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const sendMail = require("../controllers/mailer");
+const sendMail = require('../utils/smtp_function');
 module.exports = {
 
     sendEmail: async (req, res) => {
         const { email, subject, message } = req.body;
       
-        try {
-          await sendMail(email, subject, message);
-          res.json({ success: true, message: "Email sent successfully" });
-        } catch (err) {
-          res.status(500).json({ success: false, error: err.message });
-        }
+        sendMail(email, '000000' , subject , `<h1>Foodly Order Confirmation</h1>
+        <p>Your order has been placed successfully</p>
+        <h2 style="color: blue">${message}</h2>`);
+
       },
     updateWallet: async (req , res)=> {
         try {

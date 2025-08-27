@@ -28,6 +28,8 @@ mongoose.connect(process.env.MONGOURL)
 // console.log(otp);
 // sendEmail('h.23.2025.h@gmail.com', otp)
 
+// dHskQrJWRHa9lU-YnDN1ie:APA91bEDWOhU0iwn48mTv_luGhYHEqZ7oNHINZKtlwinj4A_fSzdS9QBlpt1qmWJVkXy7tOii7sW3MGlVkP_kHI4aO8pLn6gqXtM8Lvb05gHgFm9uXz0w_E
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/", AuthRoute);
