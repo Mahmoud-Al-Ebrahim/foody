@@ -48,16 +48,19 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
 
+  const tokens = [
+    "dHskQrJWRHa9lU-YnDN1ie:APA91bEDWOhU0iwn48mTv_luGhYHEqZ7oNHINZKtlwinj4A_fSzdS9QBlpt1qmWJVkXy7tOii7sW3MGlVkP_kHI4aO8pLn6gqXtM8Lvb05gHgFm9uXz0w_E",
+    "dHskQrJWRHa9lU-YnDN1ie:APA91bEDWOhU0iwn48mTv_luGhYHEqZ7oNHINZKtlwinj4A_fSzdS9QBlpt1qmWJVkXy7tOii7sW3MGlVkP_kHI4aO8pLn6gqXtM8Lvb05gHgFm9uXz0w_E",
+    "dHskQrJWRHa9lU-YnDN1ie:APA91bEDWOhU0iwn48mTv_luGhYHEqZ7oNHINZKtlwinj4A_fSzdS9QBlpt1qmWJVkXy7tOii7sW3MGlVkP_kHI4aO8pLn6gqXtM8Lvb05gHgFm9uXz0w_E"
+  ];
+  const title = 'New Order Available kkk';
+  const body = 'A new order is waiting for assignment.';
   const message = {
-    token: [
-      "dHskQrJWRHa9lU-YnDN1ie:APA91bEDWOhU0iwn48mTv_luGhYHEqZ7oNHINZKtlwinj4A_fSzdS9QBlpt1qmWJVkXy7tOii7sW3MGlVkP_kHI4aO8pLn6gqXtM8Lvb05gHgFm9uXz0w_E",
-      "dHskQrJWRHa9lU-YnDN1ie:APA91bEDWOhU0iwn48mTv_luGhYHEqZ7oNHINZKtlwinj4A_fSzdS9QBlpt1qmWJVkXy7tOii7sW3MGlVkP_kHI4aO8pLn6gqXtM8Lvb05gHgFm9uXz0w_E",
-      "dHskQrJWRHa9lU-YnDN1ie:APA91bEDWOhU0iwn48mTv_luGhYHEqZ7oNHINZKtlwinj4A_fSzdS9QBlpt1qmWJVkXy7tOii7sW3MGlVkP_kHI4aO8pLn6gqXtM8Lvb05gHgFm9uXz0w_E"
-    ],
     notification: {
-      title: "New Order Received kkk",
-      body: `You have a new order from test`,
-    }
+      title,
+      body
+    },
+    tokens
   };
 
   admin.messaging().sendEachForMulticast(message);
