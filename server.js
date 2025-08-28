@@ -16,7 +16,7 @@ const OrderRoute = require('./routes/order');
 const FoodTypesRoute = require('./routes/foodType');
 const NotificationRoute = require('./routes/notification');
 const admin = require('firebase-admin');
-const serviceAccount = require('./serviceAccountKey.json');
+const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
 
 dotenv.config();
 
@@ -47,5 +47,22 @@ app.use("/api/foodTypes", FoodTypesRoute);
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
+
+  const message = {
+    token: "dHskQrJWRHa9lU-YnDN1ie:APA91bEDWOhU0iwn48mTv_luGhYHEqZ7oNHINZKtlwinj4A_fSzdS9QBlpt1qmWJVkXy7tOii7sW3MGlVkP_kHI4aO8pLn6gqXtM8Lvb05gHgFm9uXz0w_E",
+    notification: {
+      title: "New Order Received",
+      body: `You have a new order from test`,
+    }
+  };
+
+  admin
+    .messaging()
+    .send(message)
+    .then(() => console.log("✅ Notification sent to restaurant"))
+    .catch((err) =>
+      console.error("❌ Failed to send notification:", err.message)
+    );
+
 
 app.listen(process.env.PORT || 6013, () => console.log(`Foodly Backend is running on ${process.env.PORT}`))
