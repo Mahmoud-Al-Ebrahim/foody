@@ -47,19 +47,10 @@ app.use("/api/notifications", NotificationRoute);
 app.use("/api/foodTypes", FoodTypesRoute);
 app.use("/api/admin", myAdmin);
 
-app.use(cors({
-  origin: '*',              // Allow all origins
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
-  credentials: true
-}));
+app.use(cors());
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*"); // allow all origins
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+
+app.options('*', cors());
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
