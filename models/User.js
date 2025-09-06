@@ -10,6 +10,7 @@ const UserSchema = new mongoose.Schema({
     phone: { type: String, default: "0123456789" },
     phoneVerification: { type: Boolean, default: false },
     driverAccepted : { type: Boolean, default: false },
+    driverVerificationMessage : { type: String, default: "Your Account is under review. We will notify you once it is verified." },
     wallet: { type: Number, default: 0 },
     address: {
         type: mongoose.Schema.Types.ObjectId,

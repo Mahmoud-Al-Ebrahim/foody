@@ -130,31 +130,49 @@ searchFoods: async (req, res) => {
     const search = req.params.search;
 
     try {
-        const results = await Food.aggregate([
-            {
-                $search: {
-                    index: "foods",
-                    text: {
-                        query: search,
-                        path: { wildcard: "*" }
-                    }
-                }
-            },
-            {
-                $lookup: {
-                    from: 'restaurants',
-                    localField: 'restaurant',
-                    foreignField: '_id',
-                    as: 'restaurant'
-                }
-            },
-            { $unwind: "$restaurant" }
+        // Search in foods
+        const foodResults = await Food.aggregate([
+          {
+            $search: {
+              index: "foods", // Atlas Search index on foods collection
+              text: {
+                query: search,
+                path: { wildcard: "*" }
+              }
+            }
+          },
+          {
+            $lookup: {
+              from: "restaurants",
+              localField: "restaurant",
+              foreignField: "_id",
+              as: "restaurant"
+            }
+          },
+          { $unwind: "$restaurant" }
         ]);
-
-        res.status(200).json(results);
-    } catch (error) {
+      
+        // Search in restaurants
+        const restaurantResults = await Restaurant.aggregate([
+          {
+            $search: {
+              index: "restaurants", // Atlas Search index on restaurants collection
+              text: {
+                query: search,
+                path: { wildcard: "*" }
+              }
+            }
+          }
+        ]);
+      
+        res.status(200).json({
+          foods: foodResults,
+          restaurants: restaurantResults
+        });
+      } catch (error) {
+        console.error("Error searching:", error);
         res.status(500).json({ status: false, message: error.message });
-    }
+      }
 },
 
 getAllFoodsByCode: async (req, res) => {

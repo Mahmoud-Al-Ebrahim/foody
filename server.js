@@ -15,7 +15,9 @@ const CartRoute = require('./routes/cart');
 const OrderRoute = require('./routes/order');
 const FoodTypesRoute = require('./routes/foodType');
 const NotificationRoute = require('./routes/notification');
+const myAdmin = require('./routes/admin');
 const admin = require('firebase-admin');
+const cors = require('cors');
 const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
 
 dotenv.config();
@@ -43,6 +45,9 @@ app.use("/api/cart", CartRoute);
 app.use("/api/orders", OrderRoute);
 app.use("/api/notifications", NotificationRoute);
 app.use("/api/foodTypes", FoodTypesRoute);
+app.use("/api/admin", myAdmin);
+
+app.use(cors());
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)

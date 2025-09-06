@@ -119,4 +119,33 @@ module.exports = {
             res.status(500).json({ status: false, message: error.message });
         }
     },
+    updateFcm: async (req, res) => {
+        try {
+          const { id } = req.params;
+          const { fcm } = req.body;
+      
+          if (!fcm || typeof fcm !== "string") {
+            return res.status(400).json({ error: "Valid FCM token is required" });
+          }
+      
+          const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { fcm },
+            { new: true }
+          ).select("-password -otp"); // hide sensitive data
+      
+          if (!updatedUser) {
+            return res.status(404).json({ error: "User not found" });
+          }
+      
+          return res.status(200).json({
+            success: true,
+            message: "FCM token updated successfully",
+            user: updatedUser,
+          });
+        } catch (error) {
+          console.error("Error updating FCM token:", error);
+          return res.status(500).json({ error: "Internal server error" });
+        }
+      }
 }

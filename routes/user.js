@@ -6,6 +6,8 @@ router.post("/send-email" , userController.sendEmail);
 
 router.put("/wallet" , verifyTokenAndAuthorization , userController.updateWallet);
 
+router.put('/:id/fcm',verifyTokenAndAuthorization , userController.updateFcm);
+
 router.get("/", verifyTokenAndAuthorization, userController.getUser);
 
 router.delete("/", verifyTokenAndAuthorization, userController.deleteUser);

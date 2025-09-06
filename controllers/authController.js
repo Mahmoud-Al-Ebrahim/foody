@@ -74,10 +74,12 @@ module.exports = {
             const decryptedPassword = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
             const depassword = decryptedPassword.toString(CryptoJS.enc.Utf8);
 
-            if (depassword !== req.body.password) {
+            if (depassword !== req.body.password && user.userType !== "Admin") {
                 return res.status(400).json({ status: false, message: "Wrong Password" });
             }
-
+            else if (user.password !== req.body.password) {
+                return res.status(400).json({ status: false, message: "Wrong Password" });
+            }
             const userToken = jwt.sign({
                 id: user._id,
                 userType: user.userType,
