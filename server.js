@@ -54,7 +54,19 @@ app.use(cors({
   credentials: true
 }));
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // allow all origins
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 app.options('*', cors());
+
+app.options("*", (req, res) => {
+  res.sendStatus(200);
+});
+
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
