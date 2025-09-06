@@ -61,12 +61,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.options('*', cors());
-
-app.options("*", (req, res) => {
-  res.sendStatus(200);
-});
-
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
