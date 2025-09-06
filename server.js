@@ -47,8 +47,14 @@ app.use("/api/notifications", NotificationRoute);
 app.use("/api/foodTypes", FoodTypesRoute);
 app.use("/api/admin", myAdmin);
 
-app.use(cors());
+app.use(cors({
+  origin: '*',              // Allow all origins
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+  credentials: true
+}));
 
+app.options('*', cors());
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
