@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const sendMail = require('../utils/smtp_function');
+const Food = require('../models/Food');
 module.exports = {
 
     sendEmail: async (req, res) => {
@@ -147,5 +148,54 @@ module.exports = {
           console.error("Error updating FCM token:", error);
           return res.status(500).json({ error: "Internal server error" });
         }
+      },
+      addFavorites: async (req, res) => {
+        try {
+          const { userId } = req.params;
+          const { foodId } = req.body;
+      
+          const user = await User.findById(userId);
+          if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+      
+          if (!user.favorites.includes(foodId)) {
+            user.favorites.push(foodId);
+            await user.save();
+          }
+      
+          res.status(200).json({ success: true, favorites: user.favorites });
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+      },
+      getFavorites: async (req, res) => {
+        try {
+          const { userId } = req.params;
+      
+          const user = await User.findById(userId).populate('favorites', 'title price imageUrl');
+          if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+      
+          res.status(200).json({ success: true, favorites: user.favorites });
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+      },
+      removeFavorites: async (req, res) => {
+        try {
+          const { userId, foodId } = req.params;
+      
+          const user = await User.findById(userId);
+          if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+      
+          user.favorites = user.favorites.filter(f => f.toString() !== foodId);
+          await user.save();
+      
+          res.status(200).json({ success: true, favorites: user.favorites });
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({ success: false, message: 'Internal server error' });
+        }
       }
+
 }

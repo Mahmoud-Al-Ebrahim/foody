@@ -261,7 +261,7 @@ module.exports = {
         try {
             const updatedOrder = await Order.findByIdAndUpdate(
               orderId,
-              { orderStatus: orderStatus },
+              { orderStatus: orderStatus  , refuseReason : req.query.refuseReason},
               { new: true }
             ).populate("userId"); // assuming Order has userId ref to User
         
@@ -333,5 +333,5 @@ module.exports = {
         } catch (error) {
             res.status(500).json({ status: false, message: error.message });
         }
-    }
+    },
 }

@@ -32,6 +32,17 @@ mongoose.connect(process.env.MONGOURL)
 
 // dHskQrJWRHa9lU-YnDN1ie:APA91bEDWOhU0iwn48mTv_luGhYHEqZ7oNHINZKtlwinj4A_fSzdS9QBlpt1qmWJVkXy7tOii7sW3MGlVkP_kHI4aO8pLn6gqXtM8Lvb05gHgFm9uXz0w_E
 
+
+app.use(cors({
+  origin: '*', // or restrict to your Flutter Web app URL
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+  credentials: true
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/", AuthRoute);
@@ -47,7 +58,6 @@ app.use("/api/notifications", NotificationRoute);
 app.use("/api/foodTypes", FoodTypesRoute);
 app.use("/api/admin", myAdmin);
 
-app.use(cors());
 
 
 

@@ -1,6 +1,7 @@
 const Restaurant = require('../models/Restaurant');
 const User = require('../models/User');
 const admin = require('firebase-admin'); // Firebase Admin SDK
+const Order = require('../models/Order');
 module.exports = {
     
     getAllRestaurant: async (req, res) => {
@@ -96,7 +97,7 @@ module.exports = {
       chnageDriverStatus: async (req, res) => {
         try {
           const { id } = req.params;
-          const { accept, message } = req.body;
+          const { accept, status , message } = req.body;
       
           if (typeof accept !== "boolean") {
             return res.status(400).json({ error: "accept must be true or false" });
@@ -107,7 +108,7 @@ module.exports = {
             return res.status(404).json({ error: "Driver not found" });
           }
       
-          driver.driverAccepted = accept;
+          driver.driverAccepted = status;
           driver.verification = accept;
           driver.driverVerificationMessage =
             message ||
@@ -149,5 +150,20 @@ module.exports = {
           console.error("Error verifying driver:", error);
           return res.status(500).json({ error: "Internal server error" });
         }
+    },
+    getAllOrders: async (req, res) => {
+      try {
+        const orders = await Order.find()
+          .populate('userId', 'username email phone profile') // populate user info
+          .populate('orderItems.foodId', 'title price imageUrl') // populate food info
+          .populate('deliveryAddress') // populate address
+          .populate('restaurantId', 'title logoUrl coords') // populate restaurant info
+          .sort({ createdAt: -1 }); // latest orders first
+    
+        res.status(200).json({ success: true, orders });
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+      }
     }
 };

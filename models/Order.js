@@ -10,6 +10,7 @@ const orderItemSchema = new mongoose.Schema({
     restaurantAddress: { type: String, default: '' },
     restaurantName: { type: String, default: '' },
     restaurantImage: { type: String, default: '' },
+    refuseReason: { type: String, default: '' },
     restaurantCoords: [Number],
     recipientCoords: [Number],
 });
