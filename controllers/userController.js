@@ -7,7 +7,7 @@ module.exports = {
     sendEmail: async (req, res) => {
         const { email, subject, message } = req.body;
         try {
-        sendMail(email, '000000' , subject , `<h1>Foodly Order Confirmation</h1>
+        sendMail(email, subject , `<h1>Foodly Order Confirmation</h1>
         <p>Your order has been placed successfully</p>
         <h2 style="color: blue">${message}</h2>`);
         res.status(201).json({ status: true, message: "Order Confirmation sent successfully " });
