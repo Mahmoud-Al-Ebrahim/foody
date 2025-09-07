@@ -155,7 +155,7 @@ module.exports = {
       try {
         const orders = await Order.find()
           .populate('userId', 'username email phone profile') // populate user info
-          .populate('orderItems.foodId', 'title price imageUrl') // populate food info
+          .populate('orderItems.foodId', 'title price imageUrl time rating') // populate food info
           .populate('deliveryAddress') // populate address
           .populate('restaurantId', 'title logoUrl coords') // populate restaurant info
           .sort({ createdAt: -1 }); // latest orders first
