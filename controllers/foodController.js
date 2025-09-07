@@ -1,4 +1,5 @@
 const Food = require('../models/Food');
+const Restaurant = require('../models/Restaurant');
 const mongoose = require('mongoose');
 module.exports = {
     addFood: async (req, res) => {
