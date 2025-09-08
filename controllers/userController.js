@@ -151,50 +151,48 @@ module.exports = {
       },
       addFavorites: async (req, res) => {
         try {
-          const { userId } = req.params;
-          const { foodId } = req.body;
+          const { userId, restaurantId } = req.params;
       
           const user = await User.findById(userId);
-          if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+          if (!user) return res.status(404).json({ message: "User not found" });
       
-          if (!user.favorites.includes(foodId)) {
-            user.favorites.push(foodId);
-            await user.save();
+          if (user.favorites.includes(restaurantId)) {
+            return res.status(400).json({ message: "Already in favorites" });
           }
       
-          res.status(200).json({ success: true, favorites: user.favorites });
-        } catch (err) {
-          console.error(err);
-          res.status(500).json({ success: false, message: 'Internal server error' });
+          user.favorites.push(restaurantId);
+          await user.save();
+      
+          res.status(200).json({ message: "Restaurant added to favorites", favorites: user.favorites });
+        } catch (error) {
+          res.status(500).json({ message: error.message });
         }
       },
       getFavorites: async (req, res) => {
         try {
           const { userId } = req.params;
       
-          const user = await User.findById(userId).populate('favorites', 'title price imageUrl');
-          if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+          const user = await User.findById(userId).populate("favorites"); // populate restaurant details
+          if (!user) return res.status(404).json({ message: "User not found" });
       
-          res.status(200).json({ success: true, favorites: user.favorites });
-        } catch (err) {
-          console.error(err);
-          res.status(500).json({ success: false, message: 'Internal server error' });
+          res.status(200).json({ favorites: user.favorites });
+        } catch (error) {
+          res.status(500).json({ message: error.message });
         }
       },
       removeFavorites: async (req, res) => {
         try {
-          const { userId, foodId } = req.params;
+          const { userId, restaurantId } = req.params;
       
           const user = await User.findById(userId);
-          if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+          if (!user) return res.status(404).json({ message: "User not found" });
       
-          user.favorites = user.favorites.filter(f => f.toString() !== foodId);
+          user.favorites = user.favorites.filter(fav => fav.toString() !== restaurantId);
           await user.save();
       
-          res.status(200).json({ success: true, favorites: user.favorites });
-        } catch (err) {
-          console.error(err);
-          res.status(500).json({ success: false, message: 'Internal server error' });
+          res.status(200).json({ message: "Restaurant removed from favorites", favorites: user.favorites });
+        } catch (error) {
+          res.status(500).json({ message: error.message });
         }
       }
 

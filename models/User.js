@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema({
     phoneVerification: { type: Boolean, default: false },
     //driverAccepted : { type: Boolean, required: true, default: false},
     driverAccepted : { type: String, required: true, default: "Pending", enum: ['Pending', 'Accepted', 'Declined',] },
-    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Food' }] ,
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant' }] ,
     driverVerificationMessage : { type: String, default: "Your Account is under review. We will notify you once it is verified." },
     wallet: { type: Number, default: 0 },
     address: {
