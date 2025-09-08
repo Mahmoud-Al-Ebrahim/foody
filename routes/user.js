@@ -16,8 +16,8 @@ router.get("/verify/:otp", verifyTokenAndAuthorization, userController.verifyAcc
 
 router.get("/verify_phone/:phone", verifyTokenAndAuthorization, userController.verifyPhone);
 
-router.post('/:userId/favorites/:restId' , verifyTokenAndAuthorization, userController.addFavorites);
-router.delete('/:userId/favorites/:restId',verifyTokenAndAuthorization, userController.removeFavorites);
+router.post('/:userId/favorites/:restaurantId' , verifyTokenAndAuthorization, userController.addFavorites);
+router.delete('/:userId/favorites/:restaurantId',verifyTokenAndAuthorization, userController.removeFavorites);
 router.get('/:userId/favorites',verifyTokenAndAuthorization, userController.getFavorites);
 
 module.exports = router;
