@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const sendMail = require('../utils/smtp_function');
 const Food = require('../models/Food');
 const mongoose = require("mongoose");
+const Restaurant = require("../models/Restaurant");
 module.exports = {
 
     sendEmail: async (req, res) => {
