@@ -1,9 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const sendMail = require('../utils/smtp_function');
-const Food = require('../models/Food');
-const mongoose = require("mongoose");
-const Restaurant = require("../models/Restaurant");
 module.exports = {
 
     sendEmail: async (req, res) => {
@@ -156,80 +153,49 @@ module.exports = {
       addFavorites: async (req, res) => {
         try {
           const { userId, restaurantId } = req.params;
-    
-          if (!mongoose.isValidObjectId(userId) || !mongoose.isValidObjectId(restaurantId)) {
-            return res.status(400).json({ message: "Invalid userId or restaurantId" });
+      
+          const user = await User.findById(userId);
+          if (!user) return res.status(404).json({ message: "User not found" });
+      
+          if (user.favorites.includes(restaurantId)) {
+            return res.status(400).json({ message: "Already in favorites" });
           }
-    
-          // make sure restaurant exists
-          const restaurant = await Restaurant.findById(restaurantId);
-          if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
-    
-          // atomic add (no duplicates)
-          const updated = await User.findByIdAndUpdate(
-            userId,
-            { $addToSet: { favorites: restaurantId } },
-            { new: true, upsert: false } // new: return the updated doc
-          ).populate("favorites");
-    
-          if (!updated) return res.status(404).json({ message: "User not found" });
-    
-          res.status(200).json({
-            message: "Restaurant added to favorites",
-            favorites: updated.favorites
-          });
+      
+          user.favorites.push(restaurantId);
+          await user.save();
+      
+          res.status(200).json({ message: "Restaurant added to favorites", favorites: user.favorites });
         } catch (error) {
-          console.error("addFavorites error:", error);
           res.status(500).json({ message: error.message });
         }
       },
-    
-      // Remove favorite (atomic)
-      removeFavorites: async (req, res) => {
-        try {
-          const { userId, restaurantId } = req.params;
-    
-          if (!mongoose.isValidObjectId(userId) || !mongoose.isValidObjectId(restaurantId)) {
-            return res.status(400).json({ message: "Invalid userId or restaurantId" });
-          }
-    
-          const updated = await User.findByIdAndUpdate(
-            userId,
-            { $pull: { favorites: mongoose.Types.ObjectId(restaurantId) } },
-            { new: true }
-          ).populate("favorites");
-    
-          if (!updated) return res.status(404).json({ message: "User not found" });
-    
-          res.status(200).json({
-            message: "Restaurant removed from favorites",
-            favorites: updated.favorites
-          });
-        } catch (error) {
-          console.error("removeFavorites error:", error);
-          res.status(500).json({ message: error.message });
-        }
-      },
-    
-      // Get favorites (populated)
       getFavorites: async (req, res) => {
         try {
           const { userId } = req.params;
-          if (!mongoose.isValidObjectId(userId)) {
-            return res.status(400).json({ message: "Invalid userId" });
-          }
-    
-          const user = await User.findById(userId).populate("favorites");
+      
+          const user = await User.findById(userId).populate("favorites"); // populate restaurant details
           if (!user) return res.status(404).json({ message: "User not found" });
-    
+      
           res.status(200).json({ favorites: user.favorites });
         } catch (error) {
-          console.error("getFavorites error:", error);
           res.status(500).json({ message: error.message });
         }
       },
-    
+      removeFavorites: async (req, res) => {
+        try {
+          const { userId, restaurantId } = req.params;
       
+          const user = await User.findById(userId);
+          if (!user) return res.status(404).json({ message: "User not found" });
+      
+          user.favorites = user.favorites.filter(fav => fav.toString() !== restaurantId);
+          await user.save();
+      
+          res.status(200).json({ message: "Restaurant removed from favorites", favorites: user.favorites });
+        } catch (error) {
+          res.status(500).json({ message: error.message });
+        }
+      }
 
 
 }
