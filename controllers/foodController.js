@@ -157,7 +157,7 @@ searchFoods: async (req, res) => {
         const restaurantResults = await Restaurant.aggregate([
           {
             $search: {
-              index: "restaurants", // Atlas Search index on restaurants collection
+              index: "default", // Atlas Search index on restaurants collection
               text: {
                 query: search,
                 path: { wildcard: "*" }
