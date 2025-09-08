@@ -152,58 +152,56 @@ module.exports = {
       },
     
 
-addFavorites: async (req, res) => {
-  try {
-    const { userId, restaurantId } = req.params;
-
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    // Convert to ObjectId for safe comparison
-    const restId = new mongoose.Types.ObjectId(restaurantId);
-
-    // Check if already exists
-    if (user.favorites.some(fav => fav.toString() === restaurantId)) {
-      return res.status(400).json({ message: "Already in favorites" });
-    }
-
-    user.favorites.push(restId);
-    await user.save();
-
-    res.status(200).json({ message: "Restaurant added to favorites", favorites: user.favorites });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-},
-
-getFavorites: async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    const user = await User.findById(userId).populate("favorites");
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    res.status(200).json({ favorites: user.favorites });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-},
-
-removeFavorites: async (req, res) => {
-  try {
-    const { userId, restaurantId } = req.params;
-
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    user.favorites = user.favorites.filter(fav => fav.toString() !== restaurantId);
-    await user.save();
-
-    res.status(200).json({ message: "Restaurant removed from favorites", favorites: user.favorites });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-}
+      addFavorites: async (req, res) => {
+        try {
+          const { userId, restaurantId } = req.params;
+      
+          const user = await User.findById(userId);
+          if (!user) return res.status(404).json({ message: "User not found" });
+      
+          // safe check to avoid null errors
+          const alreadyFavorite = user.favorites.some(
+            fav => fav && fav.toString() === restaurantId
+          );
+      
+          if (alreadyFavorite) {
+            return res.status(400).json({ message: "Already in favorites" });
+          }
+      
+          user.favorites.push(restaurantId); // mongoose will cast string -> ObjectId
+          await user.save();
+      
+          res.status(200).json({
+            message: "Restaurant added to favorites",
+            favorites: user.favorites
+          });
+        } catch (error) {
+          res.status(500).json({ message: error.message });
+        }
+      },
+      
+      removeFavorites: async (req, res) => {
+        try {
+          const { userId, restaurantId } = req.params;
+      
+          const user = await User.findById(userId);
+          if (!user) return res.status(404).json({ message: "User not found" });
+      
+          user.favorites = user.favorites.filter(
+            fav => fav && fav.toString() !== restaurantId
+          );
+      
+          await user.save();
+      
+          res.status(200).json({
+            message: "Restaurant removed from favorites",
+            favorites: user.favorites
+          });
+        } catch (error) {
+          res.status(500).json({ message: error.message });
+        }
+      }
+      
 
 
 }
