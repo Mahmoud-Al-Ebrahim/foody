@@ -177,26 +177,24 @@ searchFoods: async (req, res) => {
 },
 
 getAllFoodsByCode: async (req, res) => {
-    const code = req.params.code;
-
     try {
         const foodList = await Food.aggregate([
-            { $match: { code: code } },
-            {
-                $lookup: {
-                    from: 'restaurants',
-                    localField: 'restaurant',
-                    foreignField: '_id',
-                    as: 'restaurant'
-                }
-            },
-            { $unwind: "$restaurant" }
+          {
+            $lookup: {
+              from: 'restaurants',
+              localField: 'restaurant',
+              foreignField: '_id',
+              as: 'restaurant'
+            }
+          },
+          { $unwind: "$restaurant" }
         ]);
-
+      
         return res.status(200).json(foodList);
-    } catch (error) {
+      
+      } catch (error) {
         return res.status(500).json({ status: false, message: error.message });
-    }
+      }
 },
 
 getFoodsByRestaurant: async (req, res) => {

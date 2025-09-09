@@ -14,12 +14,11 @@ module.exports = {
 
     getAllCategories: async (req, res) => {
         try {
-            const categories = await Category.find({ title: { $ne: "More" } }, { __v: 0 });
+            const categories = await Category.find({}, { __v: 0 });
             res.status(200).json(categories);
-        }
-        catch (error) {
+          } catch (error) {
             res.status(500).json({ status: false, message: error.message });
-        }
+          }
     },
     getRandomCategories: async (req, res) => {
         try {
