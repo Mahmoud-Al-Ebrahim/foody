@@ -60,18 +60,16 @@ module.exports = {
         }
     },
     getAllNearByRestaurants: async (req, res) => {
-        const code = req.params.code;
         try {
-            // ✅ Always return all available restaurants
-            const allNearByRestaurants = await Restaurant.aggregate([
-              { $match: { isAvailable: true } },
-              { $project: { __v: 0 } }
-            ]);
-          
-            res.status(200).json(allNearByRestaurants);
-          
+            const restaurants = await Restaurant.find(
+              { verification: "Verified", isAvailable: true }, // only verified & available
+              { __v: 0 } // exclude __v field
+            );
+        
+            return res.status(200).json(restaurants);
           } catch (error) {
-            res.status(500).json({ status: false, message: error.message });
+            console.error("Error fetching verified restaurants:", error);
+            return res.status(500).json({ status: false, message: error.message });
           }
     },
     getRandomRestaurants: async (req, res) => {

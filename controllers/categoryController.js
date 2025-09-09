@@ -22,19 +22,10 @@ module.exports = {
     },
     getRandomCategories: async (req, res) => {
         try {
-            let categories = await Category.aggregate([
-                { $match: { value: { $ne: "more " } } },
-                { $sample: { size: 4 } }
-            ]);
-
-            const moreCategory = await Category.findOne({ value: "More" }, { __v: 0 });
-
-            if (moreCategory) {
-                categories.push(moreCategory)
-            }
+            const categories = await Category.find({}, { __v: 0 });
             res.status(200).json(categories);
-        } catch (error) {
+          } catch (error) {
             res.status(500).json({ status: false, message: error.message });
-        }
+          }
     }
 };

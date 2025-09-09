@@ -178,21 +178,33 @@ searchFoods: async (req, res) => {
 
 getAllFoodsByCode: async (req, res) => {
     try {
-        const foodList = await Food.aggregate([
+        const foods = await Food.aggregate([
           {
             $lookup: {
-              from: 'restaurants',
-              localField: 'restaurant',
-              foreignField: '_id',
-              as: 'restaurant'
+              from: "restaurants", // name of the Restaurant collection
+              localField: "restaurant",
+              foreignField: "_id",
+              as: "restaurant"
             }
           },
-          { $unwind: "$restaurant" }
+          { $unwind: "$restaurant" }, // flatten restaurant array
+          {
+            $match: {
+              "restaurant.verification": "Verified",
+              isAvailable: true
+            }
+          },
+          {
+            $project: {
+              __v: 0,
+              "restaurant.__v": 0
+            }
+          }
         ]);
-      
-        return res.status(200).json(foodList);
-      
+    
+        return res.status(200).json(foods);
       } catch (error) {
+        console.error("Error fetching verified foods:", error);
         return res.status(500).json({ status: false, message: error.message });
       }
 },
