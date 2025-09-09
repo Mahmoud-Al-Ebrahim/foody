@@ -11,7 +11,7 @@ const RestaurantSchema = new mongoose.Schema({
     owner: { type: String, required: true },
     code: { type: String, required: true },
     logoUrl: { type: String, required: true },
-    rating: { type: Number, min: 1, max: 5, default: 0 },
+    rating: { type: Number, min: 0, max: 5, default: 0 },
     ratingCount: { type: String, default: "267" },
     verification: { type: String, default: "Pending", enum: ["Pending", "Verified", "Rejected"] },
     verificationMessage: { type: String, default: "Your restaurant is under review. We will notify you once it is verified." },
