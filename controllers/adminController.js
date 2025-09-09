@@ -22,61 +22,69 @@ module.exports = {
         }
       },
      changeRestaurantStatus: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const { verification, message } = req.body;
-          
-            // Ensure verification value is valid
-            if (!["Verified", "Rejected"].includes(verification)) {
-              return res.status(400).json({ error: "Invalid verification status" });
-            }
-          
-            const updatedRestaurant = await Restaurant.findByIdAndUpdate(
-              id,
-              {
-                verification,
-                verificationMessage:
-                  message ||
-                  (verification === "Verified"
-                    ? "Your restaurant has been successfully verified."
-                    : "Your restaurant has been rejected. Please review the requirements and try again."),
-              },
-              { new: true }
+      try {
+        const { id } = req.params;
+        const { verification, message } = req.body;
+      
+        // Ensure verification value is valid
+        if (!["Verified", "Rejected"].includes(verification)) {
+          return res.status(400).json({ error: "Invalid verification status" });
+        }
+      
+        // ✅ Update restaurant first
+        const updatedRestaurant = await Restaurant.findByIdAndUpdate(
+          id,
+          {
+            verification,
+            verificationMessage:
+              message ||
+              (verification === "Verified"
+                ? "Your restaurant has been successfully verified."
+                : "Your restaurant has been rejected. Please review the requirements and try again."),
+          },
+          { new: true }
+        );
+      
+        if (!updatedRestaurant) {
+          return res.status(404).json({ error: "Restaurant not found" });
+        }
+      
+        // ✅ If verified, also update owner verification
+        if (verification === "Verified" && updatedRestaurant.owner) {
+          await User.findByIdAndUpdate(updatedRestaurant.owner, {
+            $set: { verification: true }, // change this field name if it's different (e.g., isVerified)
+          });
+        }
+      
+        // 🔔 Fetch the owner user to send notification
+        const owner = await User.findById(updatedRestaurant.owner);
+        if (owner && owner.fcm && owner.fcm !== "none") {
+          const notification = {
+            token: owner.fcm,
+            notification: {
+              title: "Restaurant Verification Update",
+              body: updatedRestaurant.verificationMessage,
+            },
+            data: {
+              restaurantId: updatedRestaurant._id.toString(),
+              status: verification,
+            },
+          };
+      
+          admin
+            .messaging()
+            .send(notification)
+            .then(() => console.log("✅ Notification sent to restaurant owner"))
+            .catch((err) =>
+              console.error("❌ Failed to send notification:", err.message)
             );
-          
-            if (!updatedRestaurant) {
-              return res.status(404).json({ error: "Restaurant not found" });
-            }
-          
-            // 🔔 Fetch the owner user to send notification
-            const owner = await User.findById(updatedRestaurant.owner);
-            if (owner && owner.fcm && owner.fcm !== "none") {
-              const notification = {
-                token: owner.fcm,
-                notification: {
-                  title: "Restaurant Verification Update",
-                  body: updatedRestaurant.verificationMessage,
-                },
-                data: {
-                  restaurantId: updatedRestaurant._id.toString(),
-                  status: verification,
-                },
-              };
-          
-              admin
-                .messaging()
-                .send(notification)
-                .then(() => console.log("✅ Notification sent to restaurant owner"))
-                .catch((err) =>
-                  console.error("❌ Failed to send notification:", err.message)
-                );
-            }
-          
-            return res.status(200).json(updatedRestaurant);
-          } catch (error) {
-            console.error("Error updating restaurant verification:", error);
-            return res.status(500).json({ error: "Internal server error" });
-          }
+        }
+      
+        return res.status(200).json(updatedRestaurant);
+      } catch (error) {
+        console.error("Error updating restaurant verification:", error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
       },
       getAllUsers: async (req, res) => {
         try {

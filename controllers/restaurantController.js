@@ -110,4 +110,37 @@ module.exports = {
             res.status(500).json({ status: false, message: error.message });
         }
     },
+    updateRating: async (req, res) => {
+        try {
+          const { restaurantId } = req.params;
+          const { userRating } = req.body; // rating from user (1-5)
+      
+          if (!userRating || userRating < 1 || userRating > 5) {
+            return res.status(400).json({ message: "Rating must be between 1 and 5" });
+          }
+      
+          const restaurant = await Restaurant.findById(restaurantId);
+          if (!restaurant) {
+            return res.status(404).json({ message: "Restaurant not found" });
+          }
+      
+          // calculate new rating
+          const totalRating = (restaurant.rating * restaurant.ratingCount) + userRating;
+          const newRatingCount = restaurant.ratingCount + 1;
+          const newRating = totalRating / newRatingCount;
+      
+          // update restaurant
+          restaurant.rating = newRating;
+          restaurant.ratingCount = newRatingCount;
+          await restaurant.save();
+      
+          res.json({
+            message: "Rating updated successfully",
+            rating: restaurant.rating.toFixed(2),
+            ratingCount: restaurant.ratingCount,
+          });
+        } catch (err) {
+          res.status(500).json({ message: err.message });
+        }
+    }
 }

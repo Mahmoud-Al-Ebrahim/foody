@@ -28,7 +28,7 @@ module.exports = {
                 { $sample: { size: 4 } }
             ]);
 
-            const moreCategory = await Category.findOne({ value: "more" }, { __v: 0 });
+            const moreCategory = await Category.findOne({ value: "More" }, { __v: 0 });
 
             if (moreCategory) {
                 categories.push(moreCategory)

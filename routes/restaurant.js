@@ -12,4 +12,6 @@ router.get("/all/:code", restaurantController.getAllNearByRestaurants);
 
 router.get("/byId/:id", restaurantController.getRestaurantById);
 
+router.post("/:restaurantId/rate", restaurantController.updateRating);
+
 module.exports = router;

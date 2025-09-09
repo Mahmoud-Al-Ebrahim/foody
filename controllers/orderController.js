@@ -255,40 +255,52 @@ module.exports = {
         
     },
     updateOrderStatus: async (req, res) => {
-        const orderId = req.params.id;
-        const orderStatus = req.query.status;
-
-        try {
-            const updatedOrder = await Order.findByIdAndUpdate(
-              orderId,
-              { orderStatus: orderStatus  , refuseReason : req.query.refuseReason},
-              { new: true }
-            ).populate("userId"); // assuming Order has userId ref to User
-        
-            if (!updatedOrder) {
-              return res.status(400).json({ status: false, message: "Order not found" });
-            }
-        
-            // ✅ Respond immediately
-            res
-              .status(200)
-              .json({ status: true, message: "Order updated successfully" });
-        
-              const user = updatedOrder.userId; // user who created the order
-        
+            const { id: orderId } = req.params;
+            const orderStatus = req.query.status;
+            const { refuseReason } = req.body;
+          
+            try {
+              // Build update object
+              const updateData = { orderStatus };
+              if (refuseReason && refuseReason.trim() !== "") {
+                updateData.refuseReason = refuseReason;
+              }
+          
+              const updatedOrder = await Order.findByIdAndUpdate(
+                orderId,
+                updateData,
+                { new: true }
+              ).populate("userId"); // assuming Order has userId ref to User
+          
+              if (!updatedOrder) {
+                return res.status(400).json({ status: false, message: "Order not found" });
+              }
+          
+              // ✅ Respond immediately
+              res
+                .status(200)
+                .json({ status: true, message: "Order updated successfully" });
+          
+              const user = updatedOrder.userId;
+          
               if (user && user.fcm) {
+                let notificationBody = `Your order has been marked as ${orderStatus}`;
+                if (orderStatus === "Rejected" && refuseReason) {
+                  notificationBody = `Your order has been ${orderStatus}. Reason: ${refuseReason}`;
+                }
+          
                 const message = {
                   token: user.fcm,
                   notification: {
                     title: "Order Updated",
-                    body: `Your order has been marked as ${orderStatus}`,
+                    body: notificationBody,
                   },
                   data: {
                     orderId: orderId.toString(),
                     status: orderStatus,
                   },
                 };
-        
+          
                 admin
                   .messaging()
                   .send(message)
@@ -299,13 +311,10 @@ module.exports = {
               } else {
                 console.warn("⚠️ User has no fcmToken, notification skipped.");
               }
-
-          } catch (error) {
-            console.error(error);
-            return res
-              .status(500)
-              .json({ status: false, message: error.message });
-          }
+            } catch (error) {
+              console.error(error);
+              return res.status(500).json({ status: false, message: error.message });
+            }
     },
 
     getOrderDetails: async (req, res) => {
